@@ -35,10 +35,9 @@ msgstr ""
 "markdown"
 
 #: data/org.gnome.gitlab.somas.Apostrophe.desktop.in.in:18
-#, fuzzy
 #| msgid "Windowed"
 msgid "New Window"
-msgstr "Σε παράθυρο"
+msgstr "Νέο παράθυρο"
 
 #: data/org.gnome.gitlab.somas.Apostrophe.metainfo.xml.in.in:5
 msgid "Edit Markdown in style"
@@ -785,8 +784,6 @@ msgid "Heading"
 msgstr "Επικεφαλίδα"
 
 #: data/ui/ToolbarNarrow.ui:58
-#| msgctxt "shortcut window"
-#| msgid "List Item"
 msgid "List"
 msgstr "Λίστα"
 
@@ -799,17 +796,14 @@ msgid "Table"
 msgstr "Πίνακας"
 
 #: data/ui/ToolbarNarrow.ui:117
-#| msgid "Unordered List"
 msgid "Unordered"
 msgstr "Αταξινόμητη"
 
 #: data/ui/ToolbarNarrow.ui:136
-#| msgid "Ordered List"
 msgid "Ordered"
 msgstr "Ταξινομημένη"
 
 #: data/ui/ToolbarNarrow.ui:155
-#| msgid "Check List"
 msgid "Checklist"
 msgstr "Λίστα ελέγχου"
 
@@ -868,7 +862,9 @@ msgstr "Φόρτωση περιορισμένης προεπισκόπησης"
 #: data/ui/Window.ui:180
 msgid ""
 "Apostrophe closed unexpectedly. This file has been recovered from an autosave"
-msgstr "Το Apostrophe έκλεισε απρόσμενα. Αυτό το αρχείο ανακτήθηκε από μια αυτόματη αποθήκευση"
+msgstr ""
+"Το Apostrophe έκλεισε απρόσμενα. Αυτό το αρχείο ανακτήθηκε από μια αυτόματη "
+"αποθήκευση"
 
 #: data/ui/Window.ui:196
 msgid "File Has Changed on Disk"
@@ -891,12 +887,10 @@ msgid "Translations"
 msgstr "Μεταφράσεις"
 
 #: apostrophe/bottombar.py:184
-#| msgid "Toolbar"
 msgid "Hide Toolbar"
 msgstr "Απόκρυψη Γραμμής Εργαλείων"
 
 #: apostrophe/bottombar.py:186
-#| msgid "Toolbar"
 msgid "Show Toolbar"
 msgstr "Εμφάνιση Γραμμής Εργαλείων"
 
@@ -912,10 +906,6 @@ msgid "Cancel"
 msgstr "Ακύρωση"
 
 #: apostrophe/export_dialog.py:151
-#| msgid ""
-#| "An error happened while trying to export:\n"
-#| "\n"
-#| "{err_msg}"
 msgid "Apostrophe experienced an error while trying to export:"
 msgstr "Το Apostrophe αντιμετώπισε σφάλμα κατά την προσπάθεια εξαγωγής:"
 
@@ -1020,6 +1010,11 @@ msgid ""
 "The error was:\n"
 "{err_msg}"
 msgstr ""
+"Αποτυχία ανίχνευσης κωδικοποίησης για το αρχείο:\n"
+"{file}\n"
+"\n"
+"Το σφάλμα ήταν:\n"
+"{err_msg}"
 
 #: apostrophe/main_window.py:649
 msgid "Save Changes?"
