@@ -10,16 +10,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Apostrophe master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/apostrophe/issues\n"
-"POT-Creation-Date: 2025-09-25 15:20+0000\n"
-"PO-Revision-Date: 2024-04-18 23:09+0200\n"
-"Last-Translator: Irénée Thirion <irenee.thirion@e.email>\n"
+"POT-Creation-Date: 2025-09-25 15:19+0000\n"
+"PO-Revision-Date: 2026-03-07 08:55+0100\n"
+"Last-Translator: Guillaume Bernard <associations@guillaume-bernard.fr>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.8\n"
 "X-DL-Lang: fr\n"
 "X-DL-Module: apostrophe\n"
 "X-DL-Branch: main\n"
@@ -452,10 +452,8 @@ msgid "Save Markdown File"
 msgstr "Enregistrer le fichier Markdown"
 
 #: data/ui/InlinePreviewPopover.ui:42
-#, fuzzy
-#| msgid "No Results Found"
 msgid "Not Found"
-msgstr "Aucun résultat trouvé"
+msgstr "Non trouvé"
 
 #: data/ui/Preferences.ui:12 data/ui/Preferences.ui:13
 msgid "Check Spelling"
@@ -907,8 +905,7 @@ msgstr "Annuler"
 
 #: apostrophe/export_dialog.py:151
 msgid "Apostrophe experienced an error while trying to export:"
-msgstr ""
-"Apostrophe a rencontré une erreur lors de la tentative d’exportation :"
+msgstr "Apostrophe a rencontré une erreur lors de la tentative d’exportation :"
 
 #: apostrophe/export_dialog.py:230
 msgid "Export to {}"
