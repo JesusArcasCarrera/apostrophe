@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Apostrophe\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/apostrophe/issues\n"
 "POT-Creation-Date: 2025-09-25 15:19+0000\n"
-"PO-Revision-Date: 2026-03-25 12:18+0100\n"
+"PO-Revision-Date: 2026-03-25 12:26+0100\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -223,6 +223,11 @@ msgstr "Panel nástrojů"
 #: data/org.gnome.gitlab.somas.Apostrophe.gschema.xml:139
 msgid "Whether the toolbar is shown or not."
 msgstr "Zda se zobrazuje panel nástrojů."
+
+#: data/org.gnome.gitlab.somas.Apostrophe.gschema.xml:145
+#: data/org.gnome.gitlab.somas.Apostrophe.gschema.xml:146
+msgid "Number of seconds between autosaves"
+msgstr "Počet sekund mezi automatickými ukládáními"
 
 #: data/ui/About.ui.in:9
 msgid "Copyright (C) 2022, Manuel G., Wolf V."
