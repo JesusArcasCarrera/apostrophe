@@ -14,6 +14,7 @@
 # END LICENSE
 
 import math
+import random
 import urllib
 from gettext import gettext as _
 from os.path import basename
@@ -95,7 +96,8 @@ class ApostropheTextView(GtkSource.View):
         self.typewriter_sound_resources = []
         self.typewriter_return_resource = None
         self.typewriter_active_players = []
-        self.next_typewriter_sound = 0
+        self.typewriter_sound_bag = []
+        self.last_typewriter_sound = None
 
         # Spell checking
         self.spelling_provider = Spelling.Provider.get_default()
@@ -217,12 +219,7 @@ class ApostropheTextView(GtkSource.View):
         if key in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
             resource = self.typewriter_return_resource
         else:
-            resource = self.typewriter_sound_resources[
-                self.next_typewriter_sound
-            ]
-            self.next_typewriter_sound = (
-                self.next_typewriter_sound + 1
-            ) % len(self.typewriter_sound_resources)
+            resource = self._next_typewriter_sound()
 
         player = Gtk.MediaFile.new_for_resource(resource)
         player.set_volume(self.typewriter_volume / 100)
@@ -257,9 +254,25 @@ class ApostropheTextView(GtkSource.View):
         )
         self.typewriter_sound_resources = [
             f"{resource_prefix}/key-{variant}.wav"
-            for variant in range(1, 5)
+            for variant in range(1, 9)
         ]
         self.typewriter_return_resource = f"{resource_prefix}/return.wav"
+
+    def _next_typewriter_sound(self):
+        if not self.typewriter_sound_bag:
+            self.typewriter_sound_bag = self.typewriter_sound_resources.copy()
+            random.shuffle(self.typewriter_sound_bag)
+            if (len(self.typewriter_sound_bag) > 1 and
+                    self.typewriter_sound_bag[-1] ==
+                    self.last_typewriter_sound):
+                self.typewriter_sound_bag[0], self.typewriter_sound_bag[-1] = (
+                    self.typewriter_sound_bag[-1],
+                    self.typewriter_sound_bag[0]
+                )
+
+        resource = self.typewriter_sound_bag.pop()
+        self.last_typewriter_sound = resource
+        return resource
 
     def _on_typewriter_player_finished(self, player, _pspec):
         if not (player.get_ended() or player.get_error()):
@@ -273,7 +286,8 @@ class ApostropheTextView(GtkSource.View):
         self.typewriter_sound_resources = []
         self.typewriter_return_resource = None
         self.typewriter_active_players = []
-        self.next_typewriter_sound = 0
+        self.typewriter_sound_bag = []
+        self.last_typewriter_sound = None
 
     def on_drop(self, drop_target, content, _x, _y):
         # check if a file was dropped

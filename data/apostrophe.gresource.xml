@@ -19,16 +19,28 @@
     <file alias="sounds/classic/key-2.wav">media/sounds/classic/key-2.wav</file>
     <file alias="sounds/classic/key-3.wav">media/sounds/classic/key-3.wav</file>
     <file alias="sounds/classic/key-4.wav">media/sounds/classic/key-4.wav</file>
+    <file alias="sounds/classic/key-5.wav">media/sounds/classic/key-5.wav</file>
+    <file alias="sounds/classic/key-6.wav">media/sounds/classic/key-6.wav</file>
+    <file alias="sounds/classic/key-7.wav">media/sounds/classic/key-7.wav</file>
+    <file alias="sounds/classic/key-8.wav">media/sounds/classic/key-8.wav</file>
     <file alias="sounds/classic/return.wav">media/sounds/classic/return.wav</file>
     <file alias="sounds/soft/key-1.wav">media/sounds/soft/key-1.wav</file>
     <file alias="sounds/soft/key-2.wav">media/sounds/soft/key-2.wav</file>
     <file alias="sounds/soft/key-3.wav">media/sounds/soft/key-3.wav</file>
     <file alias="sounds/soft/key-4.wav">media/sounds/soft/key-4.wav</file>
+    <file alias="sounds/soft/key-5.wav">media/sounds/soft/key-5.wav</file>
+    <file alias="sounds/soft/key-6.wav">media/sounds/soft/key-6.wav</file>
+    <file alias="sounds/soft/key-7.wav">media/sounds/soft/key-7.wav</file>
+    <file alias="sounds/soft/key-8.wav">media/sounds/soft/key-8.wav</file>
     <file alias="sounds/soft/return.wav">media/sounds/soft/return.wav</file>
     <file alias="sounds/electric/key-1.wav">media/sounds/electric/key-1.wav</file>
     <file alias="sounds/electric/key-2.wav">media/sounds/electric/key-2.wav</file>
     <file alias="sounds/electric/key-3.wav">media/sounds/electric/key-3.wav</file>
     <file alias="sounds/electric/key-4.wav">media/sounds/electric/key-4.wav</file>
+    <file alias="sounds/electric/key-5.wav">media/sounds/electric/key-5.wav</file>
+    <file alias="sounds/electric/key-6.wav">media/sounds/electric/key-6.wav</file>
+    <file alias="sounds/electric/key-7.wav">media/sounds/electric/key-7.wav</file>
+    <file alias="sounds/electric/key-8.wav">media/sounds/electric/key-8.wav</file>
     <file alias="sounds/electric/return.wav">media/sounds/electric/return.wav</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/BottomBar.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/DetailedError.ui</file>
