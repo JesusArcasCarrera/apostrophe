@@ -4,7 +4,7 @@
   <object class="ApostropheTextBuffer" id="buffer">
     <signal name="mark-set" handler="_on_mark_set" />
     <signal name="paste-done" handler="_on_paste_done" />
-    <signal name="changed" handler="_on_text_changed" />
+    <signal name="changed-debounced" handler="_on_text_changed" />
   </object>
   <template class="ApostropheTextView" parent="GtkSourceView">
     <property name="wrap-mode">word-char</property>

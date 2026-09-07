@@ -192,6 +192,8 @@ class MarkupHandler:
                 self.parent_conn.send(text)
             else:
                 self.do_apply(text)
+                # No worker reply will arrive to clear the fast-path state.
+                self.parsing = False
         else:
             self.apply_pending = True
 
