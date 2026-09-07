@@ -111,6 +111,7 @@ class ApostrophePreferencesDialog(Adw.PreferencesDialog):
     input_format_comborow = Gtk.Template.Child()
     preview_security_comborow = Gtk.Template.Child()
     bigger_text_row = Gtk.Template.Child()
+    typewriter_sounds_row = Gtk.Template.Child()
 
     settings = Settings.new()
 
@@ -155,6 +156,11 @@ class ApostrophePreferencesDialog(Adw.PreferencesDialog):
 
         self.settings.bind("bigger-text",
                            self.bigger_text_row,
+                           "active",
+                           Gio.SettingsBindFlags.DEFAULT)
+
+        self.settings.bind("typewriter-sounds",
+                           self.typewriter_sounds_row,
                            "active",
                            Gio.SettingsBindFlags.DEFAULT)
 

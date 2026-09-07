@@ -62,6 +62,7 @@ class ApostropheTextView(GtkSource.View):
     line_chars = GObject.Property(type=int, default=66)
     rich_editing = GObject.Property(type=bool, default=True)
     spellcheck = GObject.Property(type=bool, default=True)
+    typewriter_sounds = GObject.Property(type=bool, default=False)
 
     spelling_adapter = None
     spelling_checker = None
@@ -89,6 +90,8 @@ class ApostropheTextView(GtkSource.View):
         self.settings = Settings.new()
 
         self.buffer = self.get_buffer()
+        self.typewriter_sound_players = []
+        self.next_typewriter_sound_player = 0
 
         # Spell checking
         self.spelling_provider = Spelling.Provider.get_default()
@@ -111,6 +114,11 @@ class ApostropheTextView(GtkSource.View):
                            "line_chars", Gio.SettingsBindFlags.GET)
         self.settings.bind("rich-editing", self,
                            "rich_editing", Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("typewriter-sounds", self,
+                           "typewriter_sounds", Gio.SettingsBindFlags.GET)
+        self.connect("notify::typewriter-sounds",
+                     self._on_typewriter_sounds_update)
+        self._on_typewriter_sounds_update()
         
         # Preview popover
         self.preview_popover = InlinePreview(self)
@@ -168,9 +176,56 @@ class ApostropheTextView(GtkSource.View):
         GLib.idle_add(self.update_font_size)
 
     def _on_key_pressed(self, controller, key, keycode, state):
+        if self.typewriter_sounds and self._is_typing_key(key, state):
+            self._play_typewriter_sound()
+
         if ((key == Gdk.KEY_Tab or key == Gdk.KEY_KP_Tab or key == Gdk.KEY_ISO_Left_Tab) and state == Gdk.ModifierType.SHIFT_MASK):
             self.buffer._unindent()
             return Gdk.EVENT_STOP
+
+    @staticmethod
+    def _is_typing_key(key, state):
+        shortcut_modifiers = (Gdk.ModifierType.CONTROL_MASK |
+                              Gdk.ModifierType.ALT_MASK |
+                              Gdk.ModifierType.SUPER_MASK)
+        if state & shortcut_modifiers:
+            return False
+
+        if key in (Gdk.KEY_Return, Gdk.KEY_KP_Enter, Gdk.KEY_BackSpace,
+                   Gdk.KEY_Delete, Gdk.KEY_Tab, Gdk.KEY_KP_Tab):
+            return True
+
+        character = Gdk.keyval_to_unicode(key)
+        return bool(character and chr(character).isprintable())
+
+    def _play_typewriter_sound(self):
+        if not self.typewriter_sound_players:
+            self._prepare_typewriter_sounds()
+
+        player = self.typewriter_sound_players[
+            self.next_typewriter_sound_player
+        ]
+        self.next_typewriter_sound_player = (
+            self.next_typewriter_sound_player + 1
+        ) % len(self.typewriter_sound_players)
+        player.pause()
+        player.set_timestamp(0)
+        player.play()
+
+    def _on_typewriter_sounds_update(self, *_):
+        if self.typewriter_sounds and not self.typewriter_sound_players:
+            self._prepare_typewriter_sounds()
+
+    def _prepare_typewriter_sounds(self):
+        # A small pool lets quick successive clicks overlap naturally.
+        self.typewriter_sound_players = [
+            Gtk.MediaFile.new_for_resource(
+                "/org/gnome/gitlab/somas/Apostrophe/sounds/typewriter-key.wav"
+            )
+            for _ in range(4)
+        ]
+        for player in self.typewriter_sound_players:
+            player.set_volume(0.45)
 
     def on_drop(self, drop_target, content, _x, _y):
         # check if a file was dropped

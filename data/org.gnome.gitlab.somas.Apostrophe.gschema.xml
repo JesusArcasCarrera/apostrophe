@@ -63,6 +63,13 @@
         Present Markdown formatting while keeping source syntax editable.
       </description>
     </key>
+    <key name='typewriter-sounds' type='b'>
+      <default>false</default>
+      <summary>Typewriter sounds</summary>
+      <description>
+        Play a soft mechanical click while typing.
+      </description>
+    </key>
     <key name='sync-scroll' type='b'>
       <default>true</default>
       <summary>Synchronize editor/preview scrolling</summary>

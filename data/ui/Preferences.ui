@@ -26,6 +26,12 @@
               </object>
             </child>
             <child>
+              <object class="AdwSwitchRow" id="typewriter_sounds_row">
+                <property name="title" translatable="yes">Typewriter Sounds</property>
+                <property name="subtitle" translatable="yes">Play a soft mechanical click while typing</property>
+              </object>
+            </child>
+            <child>
               <object class="AdwSwitchRow" id="session_restore_row">
                 <property name="visible">False</property>
                 <property name="title" translatable="yes">Restore Session</property>

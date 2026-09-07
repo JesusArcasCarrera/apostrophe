@@ -15,6 +15,7 @@
     <file compressed="true" alias="style-dark.css">media/css/gtk/style-dark.css</file>
     <file compressed="true" alias="style-hc.css">media/css/gtk/style-hc.css</file>
     <file compressed="true" alias="style-sepia.css">media/css/gtk/style-sepia.css</file>
+    <file alias="sounds/typewriter-key.wav">media/sounds/typewriter-key.wav</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/BottomBar.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/DetailedError.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">ui/Editor.ui</file>
