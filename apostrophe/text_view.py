@@ -92,10 +92,10 @@ class ApostropheTextView(GtkSource.View):
         self.settings = Settings.new()
 
         self.buffer = self.get_buffer()
-        self.typewriter_sound_players = []
-        self.typewriter_return_players = []
-        self.next_typewriter_sound_player = 0
-        self.next_typewriter_return_player = 0
+        self.typewriter_sound_resources = []
+        self.typewriter_return_resource = None
+        self.typewriter_active_players = []
+        self.next_typewriter_sound = 0
 
         # Spell checking
         self.spelling_provider = Spelling.Provider.get_default()
@@ -211,25 +211,28 @@ class ApostropheTextView(GtkSource.View):
         return bool(character and chr(character).isprintable())
 
     def _play_typewriter_sound(self, key):
-        if not self.typewriter_sound_players:
+        if not self.typewriter_sound_resources:
             self._prepare_typewriter_sounds()
 
         if key in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
-            players = self.typewriter_return_players
-            index = self.next_typewriter_return_player
-            self.next_typewriter_return_player = (index + 1) % len(players)
+            resource = self.typewriter_return_resource
         else:
-            players = self.typewriter_sound_players
-            index = self.next_typewriter_sound_player
-            self.next_typewriter_sound_player = (index + 1) % len(players)
+            resource = self.typewriter_sound_resources[
+                self.next_typewriter_sound
+            ]
+            self.next_typewriter_sound = (
+                self.next_typewriter_sound + 1
+            ) % len(self.typewriter_sound_resources)
 
-        player = players[index]
-        player.pause()
-        player.seek(0)
+        player = Gtk.MediaFile.new_for_resource(resource)
+        player.set_volume(self.typewriter_volume / 100)
+        player.connect("notify::ended", self._on_typewriter_player_finished)
+        player.connect("notify::error", self._on_typewriter_player_finished)
+        self.typewriter_active_players.append(player)
         player.play()
 
     def _on_typewriter_sounds_update(self, *_):
-        if self.typewriter_sounds and not self.typewriter_sound_players:
+        if self.typewriter_sounds and not self.typewriter_sound_resources:
             self._prepare_typewriter_sounds()
         elif not self.typewriter_sounds:
             self._clear_typewriter_sounds()
@@ -241,8 +244,7 @@ class ApostropheTextView(GtkSource.View):
 
     def _on_typewriter_volume_update(self, *_):
         volume = self.typewriter_volume / 100
-        for player in (self.typewriter_sound_players +
-                       self.typewriter_return_players):
+        for player in self.typewriter_active_players:
             player.set_volume(volume)
 
     def _prepare_typewriter_sounds(self):
@@ -253,26 +255,25 @@ class ApostropheTextView(GtkSource.View):
         resource_prefix = (
             "/org/gnome/gitlab/somas/Apostrophe/sounds/" + sound_style
         )
-        self.typewriter_sound_players = [
-            Gtk.MediaFile.new_for_resource(
-                f"{resource_prefix}/key-{variant}.wav"
-            )
+        self.typewriter_sound_resources = [
+            f"{resource_prefix}/key-{variant}.wav"
             for variant in range(1, 5)
         ]
-        self.typewriter_return_players = [
-            Gtk.MediaFile.new_for_resource(f"{resource_prefix}/return.wav")
-            for _ in range(2)
-        ]
-        self._on_typewriter_volume_update()
+        self.typewriter_return_resource = f"{resource_prefix}/return.wav"
+
+    def _on_typewriter_player_finished(self, player, _pspec):
+        if not (player.get_ended() or player.get_error()):
+            return
+        if player in self.typewriter_active_players:
+            self.typewriter_active_players.remove(player)
 
     def _clear_typewriter_sounds(self):
-        for player in (self.typewriter_sound_players +
-                       self.typewriter_return_players):
+        for player in self.typewriter_active_players:
             player.pause()
-        self.typewriter_sound_players = []
-        self.typewriter_return_players = []
-        self.next_typewriter_sound_player = 0
-        self.next_typewriter_return_player = 0
+        self.typewriter_sound_resources = []
+        self.typewriter_return_resource = None
+        self.typewriter_active_players = []
+        self.next_typewriter_sound = 0
 
     def on_drop(self, drop_target, content, _x, _y):
         # check if a file was dropped
