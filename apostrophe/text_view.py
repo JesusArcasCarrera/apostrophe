@@ -225,7 +225,7 @@ class ApostropheTextView(GtkSource.View):
             for _ in range(4)
         ]
         for player in self.typewriter_sound_players:
-            player.set_volume(0.45)
+            player.set_volume(0.80)
 
     def on_drop(self, drop_target, content, _x, _y):
         # check if a file was dropped
