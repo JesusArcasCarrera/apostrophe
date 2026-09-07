@@ -209,7 +209,7 @@ class ApostropheTextView(GtkSource.View):
             self.next_typewriter_sound_player + 1
         ) % len(self.typewriter_sound_players)
         player.pause()
-        player.set_timestamp(0)
+        player.seek(0)
         player.play()
 
     def _on_typewriter_sounds_update(self, *_):
