@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=Apostrophe
+Name=Apostrophe Rich
 # Translators: Search terms to find this application. Do NOT translate or localize the semicolons! Do NOT translate "uberwriter" or "apostrophe"! The list MUST also end with a semicolon!
 Keywords=uberwriter;UberWriter;apostrophe;markdown;editor;text;write;
-Comment=Apostrophe, an elegant, distraction-free markdown editor
+Comment=A distraction-free Markdown editor with rich editing
 Categories=GNOME;GTK;Office;
 Exec=apostrophe %U
 # Translators: Do NOT translate or transliterate this text (this is an icon file name)!
@@ -15,5 +15,5 @@ MimeType=text/x-markdown;text/plain;
 Actions=new-window;
 
 [Desktop Action new-window]
-Name=New Window
+Name=New Apostrophe Rich Window
 Exec=apostrophe --new-window

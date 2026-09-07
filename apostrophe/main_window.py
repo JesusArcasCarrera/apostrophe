@@ -86,7 +86,7 @@ class MainWindow(Adw.ApplicationWindow):
         """Set up the main window"""
 
         super().__init__(application=Gio.Application.get_default(),
-                         title="Apostrophe")
+                         title="Apostrophe Rich")
 
         os.chdir("/")
 
