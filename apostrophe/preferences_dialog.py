@@ -58,6 +58,18 @@ class SecurityFormat(GObject.Object):
         self.id: int = id
         self.name: str = name
 
+
+class TypewriterSound(GObject.Object):
+    __gtype_name__ = "TypewriterSound"
+
+    id = GObject.Property(type=str)
+    name = GObject.Property(type=str)
+
+    def __init__(self, sound_id, name, **kwargs):
+        super().__init__(**kwargs)
+        self.id: str = sound_id
+        self.name: str = name
+
 @Gtk.Template(resource_path='/org/gnome/gitlab/somas/Apostrophe/ui/Preferences.ui')
 class ApostrophePreferencesDialog(Adw.PreferencesDialog):
 
@@ -106,17 +118,38 @@ class ApostrophePreferencesDialog(Adw.PreferencesDialog):
         },
     ]
 
+    typewriter_sounds = [
+        {
+            "id": "classic",
+            "name": _("Classic")
+        },
+        {
+            "id": "soft",
+            "name": _("Soft")
+        },
+        {
+            "id": "electric",
+            "name": _("Electric")
+        },
+    ]
+
     autohide_headerbar_row = Gtk.Template.Child()
     spellcheck_row = Gtk.Template.Child()
     input_format_comborow = Gtk.Template.Child()
     preview_security_comborow = Gtk.Template.Child()
     bigger_text_row = Gtk.Template.Child()
     typewriter_sounds_row = Gtk.Template.Child()
+    typewriter_sound_comborow = Gtk.Template.Child()
+    typewriter_preview_button = Gtk.Template.Child()
+    typewriter_volume_row = Gtk.Template.Child()
+    typewriter_volume_scale = Gtk.Template.Child()
+    typewriter_volume_label = Gtk.Template.Child()
 
     settings = Settings.new()
 
     def __init__(self):
         super().__init__()
+        self.typewriter_preview_player = None
         input_formats = Gio.ListStore.new(InputFormat)
 
         for i, format in enumerate(self.formats):
@@ -144,6 +177,17 @@ class ApostrophePreferencesDialog(Adw.PreferencesDialog):
         if current_security_level:
             self.preview_security_comborow.set_selected(current_security_level)
 
+        sound_styles = Gio.ListStore.new(TypewriterSound)
+        current_sound_style = 0
+
+        for i, sound in enumerate(self.typewriter_sounds):
+            sound_styles.append(TypewriterSound(sound["id"], sound["name"]))
+            if sound["id"] == self.settings.get_string("typewriter-sound"):
+                current_sound_style = i
+
+        self.typewriter_sound_comborow.set_model(sound_styles)
+        self.typewriter_sound_comborow.set_selected(current_sound_style)
+
         self.settings.bind("autohide-headerbar",
                            self.autohide_headerbar_row,
                            "active",
@@ -164,6 +208,21 @@ class ApostrophePreferencesDialog(Adw.PreferencesDialog):
                            "active",
                            Gio.SettingsBindFlags.DEFAULT)
 
+        self.settings.bind("typewriter-sounds",
+                           self.typewriter_sound_comborow,
+                           "sensitive",
+                           Gio.SettingsBindFlags.GET)
+
+        self.settings.bind("typewriter-sounds",
+                           self.typewriter_volume_row,
+                           "sensitive",
+                           Gio.SettingsBindFlags.GET)
+
+        self.settings.bind("typewriter-volume",
+                           self.typewriter_volume_scale.get_adjustment(),
+                           "value",
+                           Gio.SettingsBindFlags.DEFAULT)
+
     @Gtk.Template.Callback()
     def on_input_format(self, _widget, _index):
         fmt = self.input_format_comborow.get_selected_item()
@@ -178,3 +237,32 @@ class ApostrophePreferencesDialog(Adw.PreferencesDialog):
     def on_security(self, _widget, _index):
         fmt = self.preview_security_comborow.get_selected_item()
         self.settings.set_enum("preview-security", fmt.id)
+
+    @Gtk.Template.Callback()
+    def on_typewriter_sound(self, _widget, _index):
+        sound = self.typewriter_sound_comborow.get_selected_item()
+        if sound:
+            self.settings.set_string("typewriter-sound", sound.id)
+
+    @Gtk.Template.Callback()
+    def on_typewriter_preview(self, _button):
+        sound = self.typewriter_sound_comborow.get_selected_item()
+        if not sound:
+            return
+
+        resource = (
+            "/org/gnome/gitlab/somas/Apostrophe/sounds/"
+            f"{sound.id}/key-1.wav"
+        )
+        self.typewriter_preview_player = Gtk.MediaFile.new_for_resource(
+            resource
+        )
+        volume = self.settings.get_int("typewriter-volume") / 100
+        self.typewriter_preview_player.set_volume(volume)
+        self.typewriter_preview_player.play()
+
+    @Gtk.Template.Callback()
+    def on_typewriter_volume_changed(self, scale):
+        self.typewriter_volume_label.set_label(
+            f"{scale.get_value():.0f} %"
+        )

@@ -70,6 +70,26 @@
         Play a soft mechanical click while typing.
       </description>
     </key>
+    <key name='typewriter-sound' type='s'>
+      <choices>
+        <choice value="classic"/>
+        <choice value="soft"/>
+        <choice value="electric"/>
+      </choices>
+      <default>"classic"</default>
+      <summary>Typewriter sound style</summary>
+      <description>
+        Sound style used for key presses and carriage returns.
+      </description>
+    </key>
+    <key name='typewriter-volume' type='i'>
+      <range min='0' max='100'/>
+      <default>45</default>
+      <summary>Typewriter sound volume</summary>
+      <description>
+        Playback volume for typewriter sounds, from 0 to 100.
+      </description>
+    </key>
     <key name='sync-scroll' type='b'>
       <default>true</default>
       <summary>Synchronize editor/preview scrolling</summary>
