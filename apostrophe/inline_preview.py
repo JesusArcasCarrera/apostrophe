@@ -363,7 +363,7 @@ class InlinePreview(GObject.Object):
             markup_regex.FOOTNOTE,
             self.text_buffer.get_text(
                 *self.text_buffer.get_bounds(),
-                False
+                True
             ))
         for fn_match in fn_matches:
             if fn_match.group("id") == footnote_id:
@@ -469,7 +469,7 @@ class InlinePreview(GObject.Object):
         end_iter = start_iter.copy()
         start_iter.set_line_offset(0)
         end_iter.forward_to_line_end()
-        text = self.text_buffer.get_text(start_iter, end_iter, False)
+        text = self.text_buffer.get_text(start_iter, end_iter, True)
 
         for regex, get_view_fn in self.preview_fns.items():
             matches = re.finditer(regex, text)

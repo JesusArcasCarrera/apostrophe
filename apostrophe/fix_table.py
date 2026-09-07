@@ -118,7 +118,7 @@ class FixTable():
         end_iter = buf.get_end_iter()
 
         text = self.TextBuffer.get_text(
-            start_iter, end_iter, False).split('\n')
+            start_iter, end_iter, True).split('\n')
         logger.debug(text)
         length = len(text)
         bottom = length - 1
@@ -184,7 +184,7 @@ class FixTable():
         end_line = cursor_iter.copy()
         end_line.forward_to_line_end()
 
-        line_text = self.TextBuffer.get_text(cursor_iter, end_line, False)
+        line_text = self.TextBuffer.get_text(cursor_iter, end_line, True)
         if FixTable.are_in_a_table(line_text):
 
             # obtiene el indice donde comienza y termina la tabla.
@@ -198,7 +198,7 @@ class FixTable():
             end_iter = buf.get_end_iter()
 
             text = self.TextBuffer.get_text(
-                start_iter, end_iter, False).split('\n')
+                start_iter, end_iter, True).split('\n')
 
             table_as_list = FixTable.extract_table(text, r1, r2)
             logger.debug(table_as_list)

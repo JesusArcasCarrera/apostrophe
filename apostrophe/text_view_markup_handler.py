@@ -13,18 +13,14 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 # END LICENSE
 
-import regex as re
 from multiprocessing import Pipe, Process
 
 import gi
 from gi.repository import GLib, Gtk, Pango
 
-from apostrophe import helpers, markup_regex
-from apostrophe.markup_regex import (BLOCK_QUOTE, BOLD, BOLD_ITALIC, CODE,
-                                     HEADER, HEADER_UNDER, HORIZONTAL_RULE,
-                                     IMAGE, ITALIC_ASTERISK, ITALIC_UNDERSCORE,
-                                     LINK, LINK_ALT, LIST, MATH, ORDERED_LIST,
-                                     STRIKETHROUGH, TABLE)
+from apostrophe import helpers
+from apostrophe.markup_worker import run_markup_worker
+from apostrophe.rich_markdown import active_block_ranges, span_touches_ranges
 
 gi.require_version('Gtk', '4.0')
 
@@ -43,11 +39,16 @@ class MarkupHandler:
     TAG_NAME_CODE_BLOCK = 'code_block'
     TAG_NAME_UNFOCUSED_TEXT = 'unfocused_text'
     TAG_NAME_MARGIN_INDENT = 'margin_indent'
+    TAG_NAME_RICH_SYNTAX = 'rich_syntax'
+    TAG_NAME_RICH_HEADING = 'rich_heading'
+    TAG_NAME_RICH_LINK = 'rich_link'
+    TAG_NAME_RICH_QUOTE = 'rich_quote'
 
     def __init__(self, textview):
         self.textview = textview
         self.text_buffer = self.textview.get_buffer()
         self.marked_up_text = None
+        self.last_result = []
 
         # Tags.
         buffer = self.text_buffer
@@ -102,6 +103,16 @@ class MarkupHandler:
                                                 strikethrough=False,
                                                 indent=self.get_margin_indent(0, 1)[1])
 
+        self.tag_rich_syntax_hidden = buffer.create_tag(
+            'rich_syntax_hidden', invisible=True)
+        self.tag_rich_syntax_revealed = buffer.create_tag(
+            'rich_syntax_revealed', foreground='gray')
+        self.tag_rich_link = buffer.create_tag(
+            self.TAG_NAME_RICH_LINK, underline=Pango.Underline.SINGLE)
+        self.tag_rich_quote = buffer.create_tag(
+            self.TAG_NAME_RICH_QUOTE, style=Pango.Style.ITALIC)
+        self.tags_rich_headings = {}
+
         self.tags_markup = {
             self.TAG_NAME_ITALIC: lambda args: self.tag_italic,
             self.TAG_NAME_BOLD: lambda args: self.tag_bold,
@@ -139,7 +150,8 @@ class MarkupHandler:
         self.parsing = False
         self.apply_pending = False
         self.parent_conn, child_conn = Pipe()
-        Process(target=self.parse, args=(child_conn,), daemon=True).start()
+        Process(target=run_markup_worker,
+                args=(child_conn,), daemon=True).start()
         GLib.io_add_watch(
             self.parent_conn.fileno(),
             GLib.PRIORITY_DEFAULT,
@@ -158,6 +170,7 @@ class MarkupHandler:
         if not found:
             (_, color) = style_context.lookup_color('lightblue')
         self.tag_link_color_text.set_property("foreground", color.to_string())
+        self.tag_rich_link.set_property("foreground", color.to_string())
 
     def apply(self):
         """Applies markup, parsing it in a worker process
@@ -174,7 +187,7 @@ class MarkupHandler:
             text = self.text_buffer.get_slice(
                 self.text_buffer.get_start_iter(),
                 self.text_buffer.get_end_iter(),
-                False)
+                True)
             if text != self.marked_up_text:
                 self.parent_conn.send(text)
             else:
@@ -182,142 +195,9 @@ class MarkupHandler:
         else:
             self.apply_pending = True
 
-    def parse(self, child_conn):
-        """Parses markup in a worker process."""
-
-        while True:
-            while True:
-                try:
-                    text = child_conn.recv()
-                    if not child_conn.poll():
-                        break
-                except EOFError:
-                    child_conn.close()
-                    return
-
-            # List of tuples in the form (tag_name, tag_args, tag_start,
-            # tag_end).
-            result = []
-
-            # Find "```" code block tag (offset + colorize paragraph).
-            code_blocks = []
-            matches = re.finditer(markup_regex.CODE_BLOCK, text)
-            for match in matches:
-                start, end = match.start("block"), match.end("block")
-                result.append((
-                    self.TAG_NAME_CODE_BLOCK, (),
-                    start, end))
-                code_blocks.append((start, end))
-
-            # helper functions to test if a range is inside code blocks.
-            inside_code_blocks = lambda start, end: any(True for (s, e) in code_blocks if s < start < e or s < end < e)
-            match_inside_code_blocks = lambda m: inside_code_blocks(m.start(), m.end())
-
-            # Find:
-            # - "_italic_" (italic)
-            # - "**bold**" (bold)
-            # - "***bolditalic***" (bold/italic)
-            # - "~~strikethrough~~" (strikethrough)
-            # - "`code`" (colorize)
-            # - "$math$" (colorize)
-            # - "---" table (wrap/pixels)
-            regexps = (
-                (ITALIC_ASTERISK, self.TAG_NAME_ITALIC),
-                (ITALIC_UNDERSCORE, self.TAG_NAME_ITALIC),
-                (BOLD, self.TAG_NAME_BOLD),
-                (BOLD_ITALIC, self.TAG_NAME_BOLD_ITALIC),
-                (STRIKETHROUGH, self.TAG_NAME_STRIKETHROUGH),
-                (CODE, self.TAG_NAME_CODE_TEXT),
-                (MATH, self.TAG_NAME_CODE_TEXT),
-                (TABLE, self.TAG_NAME_WRAP_NONE)
-            )
-            for regexp, tag_name in regexps:
-                matches = re.finditer(regexp, text)
-                for match in matches:
-                    if match_inside_code_blocks(match):
-                        continue
-                    result.append((tag_name, (), match.start(), match.end()))
-
-            # Find:
-            # - "[description](url)" (gray out)
-            # - "![description](image_url)" (gray out)
-            regexps = (
-                (LINK, self.TAG_NAME_LINK_COLOR_TEXT),
-                (IMAGE, self.TAG_NAME_GRAY_TEXT)
-            )
-            for regexp, tag_name in regexps:
-                matches = re.finditer(regexp, text)
-                for match in matches:
-                    if match_inside_code_blocks(match):
-                        continue
-                    result.append(
-                        (tag_name, (), match.start(), match.start("text")))
-                    result.append(
-                        (tag_name, (), match.end("text"), match.end()))
-
-            # Find "<url>" links (gray out).
-            matches = re.finditer(LINK_ALT, text)
-            for match in matches:
-                if match_inside_code_blocks(match):
-                    continue
-                result.append((
-                    self.TAG_NAME_GRAY_TEXT,
-                    (), match.start("text"),
-                    match.end("text")))
-
-            # Find "---" horizontal rule (center).
-            matches = re.finditer(HORIZONTAL_RULE, text)
-            for match in matches:
-                if match_inside_code_blocks(match):
-                    continue
-                result.append((
-                    self.TAG_NAME_CENTER,
-                    (), match.start("symbols"),
-                    match.end("symbols")))
-
-
-            # Find "> blockquote" (offset).
-            matches = re.finditer(BLOCK_QUOTE, text)
-            for match in matches:
-                if match_inside_code_blocks(match):
-                    continue
-                result.append((self.TAG_NAME_MARGIN_INDENT,
-                               (2, -2), match.start(), match.end()))
-
-            # Find "# Header" (offset+bold).
-            matches = re.finditer(HEADER, text)
-            for match in matches:
-                if match_inside_code_blocks(match):
-                    continue
-                margin = -len(match.group("level")) - 1
-                result.append((
-                    self.TAG_NAME_MARGIN_INDENT, (margin, 0),
-                    match.start(), match.end()))
-                result.append(
-                    (self.TAG_NAME_BOLD, (), match.start(), match.end()))
-
-            # Find "=======" header underline (bold).
-            matches = re.finditer(HEADER_UNDER, text)
-            for match in matches:
-                if match_inside_code_blocks(match):
-                    continue
-                # check if it's a YAML fronmatter
-                if frontmatter := re.search(markup_regex.FRONTMATTER, text):
-                    if match.start() <= frontmatter.end():
-                        continue
-                result.append(
-                    (self.TAG_NAME_BOLD, (), match.start(), match.end()))
-
-            # Send parsed data back.
-            child_conn.send((text, result))
-
     def on_parsed(self, _source, _condition):
         """Reads the parsing result from the pipe
         and triggers any pending apply."""
-
-        if self.apply_pending:
-            self.parsing = False # self.apply will reenable it right away.
-            self.apply()  # self.apply clears the apply pending flag.
 
         try:
             if self.parent_conn.poll():
@@ -327,19 +207,25 @@ class MarkupHandler:
             return False
         finally:
             self.parsing = False
+            if self.apply_pending:
+                self.apply()
 
 
-    def do_apply(self, original_text, result=[]):
+    def do_apply(self, original_text, result=None):
         """Applies the result of parsing if the current text
         matches the original text."""
 
         buffer = self.text_buffer
         start = buffer.get_start_iter()
         end = buffer.get_end_iter()
-        text = self.text_buffer.get_slice(start, end, False)
+        text = self.text_buffer.get_slice(start, end, True)
 
-        # Apply markup tags.
-        if text == original_text and text != self.marked_up_text:
+        if result is None:
+            result = self.last_result
+
+        # Apply markup tags. Presentation syntax is reapplied even when only
+        # the cursor moved, because the active block must reveal its source.
+        if text == original_text:
             buffer.remove_tag(self.tag_italic, start, end)
             buffer.remove_tag(self.tag_bold, start, end)
             buffer.remove_tag(self.tag_bold_italic, start, end)
@@ -350,14 +236,49 @@ class MarkupHandler:
             buffer.remove_tag(self.tag_code_text, start, end)
             buffer.remove_tag(self.tag_code_block, start, end)
             buffer.remove_tag(self.tag_wrap_none, start, end)
+            buffer.remove_tag(self.tag_rich_syntax_hidden, start, end)
+            buffer.remove_tag(self.tag_rich_syntax_revealed, start, end)
+            buffer.remove_tag(self.tag_rich_link, start, end)
+            buffer.remove_tag(self.tag_rich_quote, start, end)
+            for tag in self.tags_rich_headings.values():
+                buffer.remove_tag(tag, start, end)
             for tag in self.tags_margins_indents.values():
                 buffer.remove_tag(tag, start, end)
 
+            selection_start, selection_end = self._selection_offsets()
+            active_ranges = active_block_ranges(
+                text, selection_start, selection_end)
+
             for tag_name, tag_args, tag_start, tag_end in result:
+                if tag_name == self.TAG_NAME_RICH_SYNTAX:
+                    if not self.textview.rich_editing:
+                        continue
+                    tag = (
+                        self.tag_rich_syntax_revealed
+                        if span_touches_ranges(tag_start, tag_end, active_ranges)
+                        else self.tag_rich_syntax_hidden
+                    )
+                elif tag_name == self.TAG_NAME_RICH_HEADING:
+                    if not self.textview.rich_editing:
+                        continue
+                    tag = self.get_rich_heading_tag(*tag_args)
+                elif tag_name == self.TAG_NAME_RICH_LINK:
+                    if not self.textview.rich_editing:
+                        continue
+                    tag = self.tag_rich_link
+                elif tag_name == self.TAG_NAME_RICH_QUOTE:
+                    if not self.textview.rich_editing:
+                        continue
+                    tag = self.tag_rich_quote
+                else:
+                    tag = self.tags_markup[tag_name](tag_args)
                 buffer.apply_tag(
-                    self.tags_markup[tag_name](tag_args),
+                    tag,
                     buffer.get_iter_at_offset(tag_start),
                     buffer.get_iter_at_offset(tag_end))
+
+            self.marked_up_text = text
+            self.last_result = result
 
         # Apply focus mode tag (grey out before/after current sentence).
         buffer.remove_tag(self.tag_unfocused_text, start, end)
@@ -384,6 +305,26 @@ class MarkupHandler:
             return tag
         else:
             return self.tags_margins_indents[level]
+
+    def get_rich_heading_tag(self, level):
+        if level not in self.tags_rich_headings:
+            scales = (1.55, 1.35, 1.2, 1.1, 1.0, 0.95)
+            self.tags_rich_headings[level] = self.text_buffer.create_tag(
+                "rich_heading_{}".format(level),
+                scale=scales[max(1, min(level, 6)) - 1],
+                weight=Pango.Weight.BOLD,
+                pixels_above_lines=8 if level <= 2 else 4,
+                pixels_below_lines=4)
+        return self.tags_rich_headings[level]
+
+    def _selection_offsets(self):
+        if self.text_buffer.get_has_selection():
+            start, end = self.text_buffer.get_selection_bounds()
+        else:
+            start = self.text_buffer.get_iter_at_mark(
+                self.text_buffer.get_insert())
+            end = start
+        return start.get_offset(), end.get_offset()
 
     def get_margin_indent(self, margin_level, indent_level,
                           baseline_margin=None, char_width=None):

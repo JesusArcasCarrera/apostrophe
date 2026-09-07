@@ -56,6 +56,13 @@
         Enable or disable spellchecking.
       </description>
     </key>
+    <key name='rich-editing' type='b'>
+      <default>true</default>
+      <summary>Rich editing</summary>
+      <description>
+        Present Markdown formatting while keeping source syntax editable.
+      </description>
+    </key>
     <key name='sync-scroll' type='b'>
       <default>true</default>
       <summary>Synchronize editor/preview scrolling</summary>

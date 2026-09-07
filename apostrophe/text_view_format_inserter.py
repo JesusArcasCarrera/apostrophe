@@ -57,7 +57,7 @@ class FormatInserter:
 
             # get text of the current line
             (start, end) = text_buffer.get_current_line_bounds()
-            text = text_buffer.get_text(start, end, False)
+            text = text_buffer.get_text(start, end, True)
 
             if text_buffer.get_has_selection():
                 # if the current line has a list item we'll treat it entirely no matter what's really selected
@@ -66,7 +66,7 @@ class FormatInserter:
                 else:
                     # otherwise use the current selection
                     (start, end) = text_buffer.get_selection_bounds()
-                    text = text_buffer.get_text(start, end, False)
+                    text = text_buffer.get_text(start, end, True)
                     selection_length = len(text)
                 text_buffer.move_mark(cursor_mark, end)
 
@@ -78,7 +78,7 @@ class FormatInserter:
             # are we in the beginning of a line?
             if start.starts_line():
                 
-                text = text_buffer.get_text(start, end, False)
+                text = text_buffer.get_text(start, end, True)
                 # check whether we have a list already to remove it
                 if match:=re.match(LIST, text):
                     delete_end = start.copy()
@@ -88,7 +88,7 @@ class FormatInserter:
                     # check whether the previous line has items
                     start_previous_line = start.copy()
                     start_previous_line.backward_lines(1)
-                    previous_line = text_buffer.get_text(start_previous_line, start, False)
+                    previous_line = text_buffer.get_text(start_previous_line, start, True)
                     match = re.match(LIST, previous_line)
 
                     symbol = "-"
@@ -99,7 +99,7 @@ class FormatInserter:
                     else:
                         # otherwise check if the second previous line is blank or not
                         start_previous_line.backward_lines(1)
-                        previous_line = text_buffer.get_text(start_previous_line, start, False)
+                        previous_line = text_buffer.get_text(start_previous_line, start, True)
                         if not previous_line:
                             indent = "\n"
                     text_buffer.insert(start, f"{indent}{symbol} {helptext if empty_line else ''}")
@@ -125,7 +125,7 @@ class FormatInserter:
 
             # get text of the current line
             (start, end) = text_buffer.get_current_line_bounds()
-            text = text_buffer.get_text(start, end, False)
+            text = text_buffer.get_text(start, end, True)
 
             if text_buffer.get_has_selection():
                 # if the current line has a checklist item we'll treat it entirely no matter what's really selected
@@ -134,7 +134,7 @@ class FormatInserter:
                 else:
                     # otherwise use the current selection
                     (start, end) = text_buffer.get_selection_bounds()
-                    text = text_buffer.get_text(start, end, False)
+                    text = text_buffer.get_text(start, end, True)
                     selection_length = len(text)
                 text_buffer.move_mark(cursor_mark, end)
 
@@ -146,7 +146,7 @@ class FormatInserter:
             # are we in the beginning of a line?
             if start.starts_line():
                 
-                text = text_buffer.get_text(start, end, False)
+                text = text_buffer.get_text(start, end, True)
                 value = " "
                 # check whether we have a list already to toggle it
                 if match:=re.match(CHECKLIST, text):
@@ -158,7 +158,7 @@ class FormatInserter:
                 # check whether the previous line has items
                 start_previous_line = start.copy()
                 start_previous_line.backward_lines(1)
-                previous_line = text_buffer.get_text(start_previous_line, start, False)
+                previous_line = text_buffer.get_text(start_previous_line, start, True)
                 match = re.match(CHECKLIST, previous_line)
 
                 symbol = "-"
@@ -169,7 +169,7 @@ class FormatInserter:
                 else:
                     # otherwise check if the second previous line is blank or not
                     start_previous_line.backward_lines(1)
-                    previous_line = text_buffer.get_text(start_previous_line, start, False)
+                    previous_line = text_buffer.get_text(start_previous_line, start, True)
                     if not previous_line:
                         indent = "\n"
                 text_buffer.insert(start, f"{indent}{symbol} [{value}] {helptext if empty_line else ''}")
@@ -195,7 +195,7 @@ class FormatInserter:
 
             # get text of the current line
             (start, end) = text_buffer.get_current_line_bounds()
-            text = text_buffer.get_text(start, end, False)
+            text = text_buffer.get_text(start, end, True)
 
             if text_buffer.get_has_selection():
                 # if the current line has a list item we'll treat it entirely no matter what's really selected
@@ -204,7 +204,7 @@ class FormatInserter:
                 else:
                     # otherwise use the current selection
                     (start, end) = text_buffer.get_selection_bounds()
-                    text = text_buffer.get_text(start, end, False)
+                    text = text_buffer.get_text(start, end, True)
                     selection_length = len(text)
                 text_buffer.move_mark(cursor_mark, end)
 
@@ -216,7 +216,7 @@ class FormatInserter:
             # are we in the beginning of a line?
             if start.starts_line():
                 
-                text = text_buffer.get_text(start, end, False)
+                text = text_buffer.get_text(start, end, True)
                 # check whether we have a numeration already to remove it
                 if match:=re.match(ORDERED_LIST, text):
                     delete_end = start.copy()
@@ -226,7 +226,7 @@ class FormatInserter:
                     # check whether the previous line is numbered
                     start_previous_line = start.copy()
                     start_previous_line.backward_lines(1)
-                    previous_line = text_buffer.get_text(start_previous_line, start, False)
+                    previous_line = text_buffer.get_text(start_previous_line, start, True)
                     match = re.match(ORDERED_LIST, previous_line)
 
                     number = 1
@@ -239,7 +239,7 @@ class FormatInserter:
                     else:
                         # otherwise check if the second previous line is blank or not
                         start_previous_line.backward_lines(1)
-                        previous_line = text_buffer.get_text(start_previous_line, start, False)
+                        previous_line = text_buffer.get_text(start_previous_line, start, True)
                         if not previous_line:
                             indent = "\n"
                     text_buffer.insert(start, f"{indent}{number}{delimiter} {helptext if empty_line else ''}")
@@ -268,7 +268,7 @@ class FormatInserter:
 
             # get text of the current line
             (start, end) = text_buffer.get_current_line_bounds()
-            text = text_buffer.get_text(start, end, False)
+            text = text_buffer.get_text(start, end, True)
 
             if text_buffer.get_has_selection():
                 # if the current line has a heading we'll treat it entirely no matter what's really selected
@@ -277,7 +277,7 @@ class FormatInserter:
                 else:
                     # otherwise we'll just use the selected text
                     (start, end) = text_buffer.get_selection_bounds()
-                    text = text_buffer.get_text(start, end, False)
+                    text = text_buffer.get_text(start, end, True)
                     selection_length = len(text)
                 text_buffer.move_mark(cursor_mark, end)
 
@@ -288,7 +288,7 @@ class FormatInserter:
 
             # are we in the beginning of a line?
             if start.starts_line():
-                text = text_buffer.get_text(start, end, False)
+                text = text_buffer.get_text(start, end, True)
                 # check whether we have a header already
                 if match:=re.match(HEADER, text):
                     next_level = len(match.group("level"))
@@ -306,7 +306,7 @@ class FormatInserter:
                 # check whether the previous line has items
                 start_previous_line = start.copy()
                 start_previous_line.backward_lines(1)
-                previous_line = text_buffer.get_text(start_previous_line, start, False)
+                previous_line = text_buffer.get_text(start_previous_line, start, True)
                 if previous_line not in [None, "\n", ""]:
                     indent = "\n"
 
@@ -335,12 +335,12 @@ class FormatInserter:
             if text_buffer.get_has_selection():
                 (start, end) = text_buffer.get_selection_bounds()
                 text_buffer.move_mark(cursor_mark, end)
-                selection_length = len(text_buffer.get_text(start, end, False))
+                selection_length = len(text_buffer.get_text(start, end, True))
             else:
                 (start, end) = text_buffer.get_current_line_bounds()
 
             if start.starts_line() :
-                text = text_buffer.get_text(start, end, False)
+                text = text_buffer.get_text(start, end, True)
 
                 if text.startswith("> "):
                     delete_end = start.copy()
@@ -349,7 +349,7 @@ class FormatInserter:
                 else:
                     start_previous_line = start.copy()
                     start_previous_line.backward_lines(1)
-                    previous_line = text_buffer.get_text(start_previous_line, start, False)
+                    previous_line = text_buffer.get_text(start_previous_line, start, True)
 
                     indent = "\n" if not previous_line else ""
 
@@ -403,7 +403,7 @@ class FormatInserter:
             if text_buffer.get_has_selection():
                 (start, end) = text_buffer.get_selection_bounds()
                 text_buffer.move_mark(cursor_mark, end)
-                text = text_buffer.get_text(start, end, False)
+                text = text_buffer.get_text(start, end, True)
                 text_buffer.delete(start, end)
 
                 # is it selecting a url?
@@ -471,7 +471,7 @@ class FormatInserter:
                 if text_buffer.get_has_selection():
                     (start, end) = text_buffer.get_selection_bounds()
                     text_buffer.move_mark(cursor_mark, end)
-                    text = text_buffer.get_text(start, end, False)
+                    text = text_buffer.get_text(start, end, True)
                     text_buffer.delete(start, end)
                     helptext = text
                 else:

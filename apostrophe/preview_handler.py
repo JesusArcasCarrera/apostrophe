@@ -85,7 +85,7 @@ class PreviewHandler:
             secure_preview = self.window().current.security_level == PreviewSecurity.RESTRICTED
 
             self.preview_converter.convert(
-                buf.get_text(buf.get_start_iter(), buf.get_end_iter(), False),
+                buf.get_text(buf.get_start_iter(), buf.get_end_iter(), True),
                 secure_preview,
                 self.window().current.base_path,
                 self.__show, Step.LOAD_WEBVIEW)

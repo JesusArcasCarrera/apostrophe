@@ -90,6 +90,7 @@
       <class name="apostrophe-editor" />
     </style>
     <signal name="notify::focus-mode" handler="_on_focus_mode_update" />
+    <signal name="notify::rich-editing" handler="_on_rich_editing_update" />
     <signal name="notify::spellcheck" handler="_on_spellcheck_update" />
     <signal name="notify::bigger-text" handler="update_font_size" />
   </template>

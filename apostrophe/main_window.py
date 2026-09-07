@@ -173,6 +173,10 @@ class MainWindow(Adw.ApplicationWindow):
         action = Gio.PropertyAction.new("focus_mode", self.textview, "focus-mode")
         self.add_action(action)
 
+        action = Gio.PropertyAction.new(
+            "rich_editing", self.textview, "rich-editing")
+        self.add_action(action)
+
         action = Gio.PropertyAction.new("hemingway_mode", self.textview.buffer, "hemingway-mode")
         self.add_action(action)
         self.textview.connect("notify::hemingway-mode", self.show_hemingway_toast)

@@ -60,6 +60,7 @@ class ApostropheTextView(GtkSource.View):
     focus_mode = GObject.Property(type=bool, default=False)
     font_size = GObject.Property(type=int, default=16)
     line_chars = GObject.Property(type=int, default=66)
+    rich_editing = GObject.Property(type=bool, default=True)
     spellcheck = GObject.Property(type=bool, default=True)
 
     spelling_adapter = None
@@ -108,6 +109,8 @@ class ApostropheTextView(GtkSource.View):
 
         self.settings.bind("characters-per-line", self,
                            "line_chars", Gio.SettingsBindFlags.GET)
+        self.settings.bind("rich-editing", self,
+                           "rich_editing", Gio.SettingsBindFlags.DEFAULT)
         
         # Preview popover
         self.preview_popover = InlinePreview(self)
@@ -236,7 +239,7 @@ class ApostropheTextView(GtkSource.View):
     def get_text(self):
         start_iter = self.buffer.get_start_iter()
         end_iter = self.buffer.get_end_iter()
-        return self.buffer.get_text(start_iter, end_iter, False)
+        return self.buffer.get_text(start_iter, end_iter, True)
 
     def set_text(self, text):
         """Set text and clear undo history"""
@@ -293,8 +296,9 @@ class ApostropheTextView(GtkSource.View):
 
     @Gtk.Template.Callback()
     def _on_button_release_event(self, *args, **kwargs):
-        if self.focus_mode:
+        if self.focus_mode or self.rich_editing:
             self.markup.apply()
+        if self.focus_mode:
             self.smooth_scroll_to()
         return False
 
@@ -305,6 +309,11 @@ class ApostropheTextView(GtkSource.View):
         self.smooth_scroll_to()
         self._on_spellcheck_update()
         self.grab_focus()
+
+    @Gtk.Template.Callback()
+    def _on_rich_editing_update(self, *_):
+        if hasattr(self, "markup"):
+            self.markup.apply()
 
     @Gtk.Template.Callback()
     def _on_mark_set(self, _text_buffer, _location, mark, _data=None):

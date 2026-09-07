@@ -101,6 +101,10 @@
       </item>
     <section>
       <item>
+        <attribute name="label" translatable="yes">_Rich Editing</attribute>
+        <attribute name="action">win.rich_editing</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">_Hemingway Mode</attribute>
         <attribute name="action">win.hemingway_mode</attribute>
       </item>
