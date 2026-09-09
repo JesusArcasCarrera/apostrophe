@@ -14,6 +14,13 @@
 > am only after tools that fit my own workflow better, and I leave them public
 > here in case any of these changes inspires or helps someone else.</sub>
 
+> ⚠️ **This fork keeps the upstream name, app id (`org.gnome.gitlab.somas.Apostrophe`) and icon.**
+> Installed, it **replaces** the official Apostrophe and shows up as "Apostrophe" in
+> your application list. If something breaks, **report it to this
+> repository**, not to upstream: the changes here are downstream-only and the
+> upstream maintainers should not have to triage them. If you can reproduce
+> the problem on the official build, report it there instead.
+
 ## What's different from upstream
 
 - **Rich Markdown editing mode** (*View → Rich Editing*): headings,
