@@ -1,3 +1,27 @@
+# Apostrophe — personal fork with rich editing and typewriter sounds
+
+> Personal fork of [Apostrophe](https://gitlab.gnome.org/World/apostrophe)
+> on top of upstream v3.4, branch `feat/rich-editing`. Not affiliated with
+> the Apostrophe maintainers. No warranty, no support; most of the fork's
+> code was written by Claude under my direction. Commits are atomic per
+> feature so anything can be cherry-picked.
+
+## What's different from upstream
+
+- **Rich Markdown editing mode** (*View → Rich Editing*): headings,
+  emphasis, links and lists are rendered in place inside the editor while
+  the document stays plain Markdown on disk; formatting refreshes as you
+  type. The rich editor is a distinct component so the classic editor is
+  untouched.
+- **Typewriter sounds**, off by default: a soft mechanical click per
+  keystroke, with selectable profiles (*Typewriter*, *Classic*, *Electric*),
+  volume and preview in preferences. Samples are played from a pool of
+  natural, randomised variations instead of one repeated click.
+
+Upstream README follows.
+
+---
+
 [![Please do not theme this app](https://stopthemingmy.app/badge.svg)](https://stopthemingmy.app)
 
 # Apostrophe
